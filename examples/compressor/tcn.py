@@ -2,7 +2,7 @@ import os
 import torch
 import torchaudio
 import numpy as np
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 from argparse import ArgumentParser
 
 import auraloss
@@ -117,7 +117,7 @@ class TCNModel(pl.LightningModule):
 
     def __init__(
         self,
-        nparams,
+        nparams=0,
         ninputs=1,
         noutputs=1,
         nblocks=10,
@@ -126,6 +126,7 @@ class TCNModel(pl.LightningModule):
         channel_growth=1,
         channel_width=64,
         stack_size=10,
+        lr=0.001,
         depthwise=False,
         num_examples=4,
         save_dir=None,
@@ -285,7 +286,7 @@ class TCNModel(pl.LightningModule):
 
         return outputs
 
-    def validation_epoch_end(self, validation_step_outputs):
+    def on_validation_epoch_end(self, validation_step_outputs):
         # flatten the output validation step dicts to a single dict
         outputs = {"input": [], "target": [], "pred": [], "params": []}
 
@@ -364,7 +365,7 @@ class TCNModel(pl.LightningModule):
     def test_step(self, batch, batch_idx):
         return self.validation_step(batch, batch_idx)
 
-    def test_epoch_end(self, test_step_outputs):
+    def on_test_epoch_end(self, test_step_outputs):
         return self.validation_epoch_end(test_step_outputs)
 
     def configure_optimizers(self):

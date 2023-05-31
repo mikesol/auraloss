@@ -5,8 +5,9 @@ import torch
 import torchaudio
 import numpy as np
 import soundfile as sf
+import lightning.pytorch as pl
 
-torchaudio.set_audio_backend("sox_io")
+# torchaudio.set_audio_backend("sox_io")
 
 
 class SignalTrainLA2ADataset(torch.utils.data.Dataset):
@@ -44,6 +45,7 @@ class SignalTrainLA2ADataset(torch.utils.data.Dataset):
         self.input_files = glob.glob(
             os.path.join(self.root_dir, self.subset.capitalize(), "input_*.wav")
         )
+        tp = os.path.join(self.root_dir, self.subset.capitalize(), "target_*.wav")
 
         self.examples = []
         self.hours = 0  # total number of hours of data in the subset
@@ -172,3 +174,59 @@ class SignalTrainLA2ADataset(torch.utils.data.Dataset):
         else:
             x, sr = torchaudio.load(filename, normalize=False)
         return x, sr
+
+class SignalTrainLA2ADataModule(pl.LightningDataModule):
+    def __init__(self,
+        root_dir,
+        subset="train",
+        length=16384,
+        preload=False,
+        half=True,
+        num_workers=8,
+        shuffle=True,
+        batch_size=128,
+        use_soundfile=False,):
+        super().__init__()
+        self.signalTrainLA2ADataset = SignalTrainLA2ADataset(root_dir, subset, length, preload, half, use_soundfile)
+        self.num_workers = num_workers
+        self.shuffle = shuffle
+        self.batch_size = batch_size
+    def setup(self, stage: str):
+        self.train_dataset = SignalTrainLA2ADataset(
+            self.signalTrainLA2ADataset.root_dir,
+            subset=self.signalTrainLA2ADataset.subset,
+            half=self.signalTrainLA2ADataset.half,
+            preload=self.signalTrainLA2ADataset.preload,
+            length=self.signalTrainLA2ADataset.length,
+        )
+
+        self.val_dataset = SignalTrainLA2ADataset(
+            self.signalTrainLA2ADataset.root_dir,
+            preload=self.signalTrainLA2ADataset.preload,
+            half=self.signalTrainLA2ADataset.half,
+            subset=self.signalTrainLA2ADataset.subset,
+            length=self.signalTrainLA2ADataset.length,
+        )
+
+
+    def train_dataloader(self):
+        return torch.utils.data.DataLoader(
+            self.train_dataset,
+            shuffle=self.shuffle,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
+        )
+
+
+    def val_dataloader(self):
+        return torch.utils.data.DataLoader(
+            self.val_dataset, shuffle=False, batch_size=2, num_workers=self.num_workers
+        )
+
+    def test_dataloader(self):
+        raise ValueError('not implemented')
+        # return DataLoader(self.mnist_test, batch_size=self.batch_size)
+
+    def predict_dataloader(self):
+        raise ValueError('not implemented')
+        # return DataLoader(self.mnist_predict, batch_size=self.batch_size)
