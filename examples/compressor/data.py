@@ -181,7 +181,7 @@ class SignalTrainLA2ADataModule(pl.LightningDataModule):
         subset="train",
         length=16384,
         preload=False,
-        half=True,
+        half=False,
         num_workers=8,
         shuffle=True,
         batch_size=128,

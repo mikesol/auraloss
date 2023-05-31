@@ -253,7 +253,10 @@ class TCNModel(pl.LightningModule):
         sisdr_loss = self.sisdr(pred, target_crop)
         stft_loss = self.stft(pred, target_crop)
         mrstft_loss = self.mrstft(pred, target_crop)
-        rrstft_loss = self.rrstft(pred, target_crop)
+        # comment out for now as it's complaining about
+        # ValueError: Input length (18446) must be larger than largest FFT size (32768).
+        # comment back in once fixed
+        # rrstft_loss = self.rrstft(pred, target_crop)
 
         aggregate_loss = (
             l1_loss
