@@ -102,7 +102,7 @@ class TCNModel(pl.LightningModule):
     """Temporal convolutional network with conditioning module.
 
     Params:
-        nparams (int): Number of conditioning parameters.
+        nparams (int): Number of conditioning parameters. For example, if we are training a compressor, these will be things like attack, decay and ratio.
         ninputs (int): Number of input channels (mono = 1, stereo 2). Default: 1
         noutputs (int): Number of output channels (mono = 1, stereo 2). Default: 1
         nblocks (int): Number of total TCN blocks. Default: 10
