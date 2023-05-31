@@ -50,7 +50,7 @@ class SignalTrainLA2ADataset(torch.utils.data.Dataset):
         self.examples = []
         self.hours = 0  # total number of hours of data in the subset
 
-        # ensure that the sets are ordered correctlty
+        # ensure that the sets are ordered correctly
         self.target_files.sort()
         self.input_files.sort()
 
