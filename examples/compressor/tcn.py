@@ -126,6 +126,7 @@ class TCNModel(pl.LightningModule):
         channel_growth=1,
         channel_width=64,
         stack_size=10,
+        train_loss="mrstft",
         lr=0.001,
         depthwise=False,
         num_examples=4,
@@ -266,7 +267,7 @@ class TCNModel(pl.LightningModule):
             + sisdr_loss
             + mrstft_loss
             + stft_loss
-            + rrstft_loss
+            # + rrstft_loss
         )
 
         self.log("val_loss", aggregate_loss)
@@ -277,7 +278,7 @@ class TCNModel(pl.LightningModule):
         self.log("val_loss/SI-SDR", sisdr_loss)
         self.log("val_loss/STFT", stft_loss)
         self.log("val_loss/MRSTFT", mrstft_loss)
-        self.log("val_loss/RRSTFT", rrstft_loss)
+        # self.log("val_loss/RRSTFT", rrstft_loss)
 
         # move tensors to cpu for logging
         outputs = {
@@ -289,7 +290,7 @@ class TCNModel(pl.LightningModule):
 
         return outputs
 
-    def on_validation_epoch_end(self, validation_step_outputs):
+    def on_validation_epoch_end(self, validation_step_outputs={}):
         # flatten the output validation step dicts to a single dict
         outputs = {"input": [], "target": [], "pred": [], "params": []}
 
