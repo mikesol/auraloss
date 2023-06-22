@@ -179,7 +179,7 @@ class TCNModel(pl.LightningModule):
     def forward(self, x, p=None):
         # if parameters present,
         # compute global conditioning
-        if p is not None:
+        if (p is not None) & (p.nelement() != 0 ):
             cond = self.gen(p)
         else:
             cond = None
